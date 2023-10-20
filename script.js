@@ -62,11 +62,13 @@ let rolledNumber;
 let player1PiecesOnBoard = 0;
 let player2PiecesOnBoard = 0;
 
+let piecesOwnedByPlayer1 = [];
+let piecesOwnedByPlayer2 = [];
+
 // function for handling home circle clicks when a 6 has been rolled
 function handleHomeCircleClick(e) {
   // confirm which home circle was clicked
   console.log("home circle " + e.target.id + " was clicked!");
-  console.log(h1Player1.classList);
 
   // now change that circle colour to the same colour as currentl player in focus
   e.target.style.backgroundColor = "#3498db";
@@ -95,21 +97,63 @@ bigCircle.addEventListener("click", function (e) {
     }
   }
 
+// if player has at least one piece on the board, allow them to move a piece
+if (player1PiecesOnBoard > 0 || player2PiecesOnBoard > 0) {
+  if (h1Player1.classList.contains("focus")) {
+      piecesOwnedByPlayer1.forEach((piece) => {
+          const pieceElement = document.getElementById(piece);
+          
+          function pieceClickHandler(e) {
+              // Turn the clicked home piece back to white
+              e.target.style.backgroundColor = "white";
+    
+              // Now effectively move the piece forwards the number of spaces rolled
+              let currentCircle = Number(e.target.id.slice(5));
+              let moves = rolledNumber;
+              let nextCircleId = `circle${currentCircle + moves}`;
+              let nextCircle = document.getElementById(nextCircleId);
+    
+              // Change new circle to colour of player in focus
+              if (nextCircle) {
+                  nextCircle.style.backgroundColor = "#3498db";
+              }
+    
+              // Now turn off the event listener for the piece that was just moved
+              pieceElement.removeEventListener("click", pieceClickHandler);
+          }
+
+          pieceElement.addEventListener("click", pieceClickHandler);
+      });
+  }
+}
+
+    circles.forEach((circle) => {
+      circle.addEventListener("click", function (e) {
+        console.log(e.target.id + " was clicked!");
+      });
+    });
+  }
+
   // If player rolls a 6
   if (rolledNumber === Number(6)) {
     homeCircles.forEach((circle) => {
       circle.addEventListener("click", handleHomeCircleClick);
     });
+    // update the number of piecees the player has on the board
     if (h1Player1.classList.contains("focus")) {
       player1PiecesOnBoard++;
+      piecesOwnedByPlayer1.push(e.target.id);
       console.log(
         "player 1 now has " + player1PiecesOnBoard + " pieces on the board"
       );
+      console.log(piecesOwnedByPlayer1);
     } else {
       player2PiecesOnBoard++;
+      piecesOwnedByPlayer2.push(e.target.id);
       console.log(
         "player 2 now has " + player1PiecesOnBoard + " pieces on the board"
       );
+      console.log(piecesOwnedByPlayer2);
     }
   }
 });
